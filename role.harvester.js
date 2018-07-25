@@ -26,10 +26,10 @@ module.exports = {
         'role': 'h',
         'state': 'd'
     },
-    shouldSpawn: function(room) {
+    getCountForRoom: function(room) {
         //console.log(room);
         // TODO: calculate based on energy node count
-        return 0;
+        return 6;
     },
     getBody: () => [WORK, WORK, MOVE, CARRY],
     run: function(creep) {
