@@ -1,3 +1,7 @@
+// Prototype extensions:
+const Traveler = require('Traveler');
+
+// The rest of the owl:
 const log = require('log');
 const utils = require('utils');
 const roleBase = require('role.base');
