@@ -4,15 +4,30 @@ module.exports = {
         return creep.carry.energy < creep.carryCapacity;
     },
     /** @param {Creep} creep The unit doing the work */
-    run: (creep) => {
-        if (creep.carry.energy < creep.carryCapacity) {
-            let sources = creep.room.find(FIND_SOURCES);
+    init: (creep) => {
+        let target = creep.pos.findClosestByPath(FIND_SOURCES);
 
-            if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                creep.travelTo(sources[0]);
-            }
+        if(target) {
+            creep.memory.job.target = target.id;
         } else {
-            return true;
+            console.log("Unable to find target");
         }
+    },
+    /** @param {Creep} creep The unit doing the work */
+    run: (creep) => {
+        // Get the target:
+        if (!creep.memory.job.target) return true;
+        let target = Game.getObjectById(creep.memory.job.target);
+
+        if(!target) return true;
+
+        let status = creep.harvest(target);
+        if(status === ERR_NOT_IN_RANGE) {
+            creep.travelTo(target);
+        }
+
+        return creep.carryCapacity <= creep.carry.energy 
+            || status === ERR_NOT_ENOUGH_RESOURCES 
+            || status === ERR_INVALID_TARGET;
     }
 }

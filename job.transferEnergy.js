@@ -10,8 +10,7 @@ module.exports = {
         // Since code is synchronous, we can just store this for the init function
         cacheTargetData = creep.room.find(FIND_MY_STRUCTURES, {
             filter: (s) => {
-                return 
-                    (
+                return (
                         s.structureType == STRUCTURE_SPAWN ||
                         s.structureType == STRUCTURE_EXTENSION ||
                         s.structureType == STRUCTURE_TOWER
