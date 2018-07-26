@@ -21,10 +21,10 @@ module.exports.loop = function () {
         // Handle room inits:
         if (!Memory.rooms) Memory.rooms = {};
         for (let roomCoords in Game.rooms) {
-            if (Memory.rooms[roomCoords]) continue;
+            if (Memory.rooms[roomCoords].next && Game.time < Memory.rooms[roomCoords].next) continue;
 
             log.info(`Initializing new room at ${roomCoords}`);
-            Memory.rooms[roomCoords] = {};
+            Memory.rooms[roomCoords] = {next: Game.time + 60};
             roleBase.initRoom(roomCoords);
         }
     }

@@ -22,7 +22,8 @@ module.exports = {
                 return;
             }
 
-            log.info(`${creep.name} now performing ${jobName}`)
+            log.info(`${creep.name} now performing ${jobName}`);
+            creep.say(`${jobName}`);
             creep.memory.job = { name: jobName };
             job = JOBS[jobName];
 
