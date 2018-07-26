@@ -1,6 +1,7 @@
 const log = require('log');
 const utils = require('utils');
 const roles = require('roles');
+const jobEngine = require('jobEngine');
 
 module.exports = {
     handle: (name) => {
@@ -24,10 +25,7 @@ module.exports = {
         }
 
         if (creep.spawning) return;
-
-        let role = roles[creep.memory.role];
-        // log.debug(`Running ${role.name} on ${creep.name}...`);
-        role.controller.run(creep);
+        jobEngine.doWork(creep);
     },
     initRoom: (roomCoords) => {
         let room = Game.rooms[roomCoords];
@@ -35,7 +33,7 @@ module.exports = {
 
         for (let roleName in roles) {
             let role = roles[roleName];
-            let shouldSpawn = role.controller.getCountForRoom(room);
+            let shouldSpawn = role.getCountForRoom(room);
             log.debug(`  -> ${role.name}: ${shouldSpawn}`);
             room.memory.roleCount[roleName] = shouldSpawn;
             if (0 < shouldSpawn) _.times(shouldSpawn, () => utils.addToSpawnQueue(roleName, roomCoords));

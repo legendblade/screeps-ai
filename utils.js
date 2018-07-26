@@ -18,7 +18,7 @@ module.exports.spawnInRoom = (room, role) => {
     }
 
     // Find not-in-use spawners:
-    const body = role.controller.getBody();
+    const body = role.getBody();
     
     const spawners = room.find(FIND_MY_SPAWNS, {
         filter: (s) => {
@@ -30,7 +30,7 @@ module.exports.spawnInRoom = (room, role) => {
     if(spawner === undefined) return false;
 
     return spawner.spawnCreep(body, module.exports.generateName(role.name, room.name), {
-            memory: _.cloneDeep(role.controller.defaultMemory)
+            memory: _.cloneDeep(role.defaultMemory)
         }) === OK;
 }
 
