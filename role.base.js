@@ -3,6 +3,11 @@ const utils = require('utils');
 const roles = require('roles');
 const jobEngine = require('jobEngine');
 
+/** @param {Room} room The room to check */
+function getRoleCountMatrix(room) {
+    return _.mapValues(roles, (role) => role.getCountForRoom(room));
+}
+
 module.exports = {
     handle: (name) => {
         let creep = Game.creeps[name];
@@ -10,15 +15,10 @@ module.exports = {
         // Remove dead creeps from memory:
         if (creep === undefined) {
             log.debug(`Removing dead unit: ${name}.`);
-            // TODO: Add to spawn queue
-
-            let roomName = /WB[A-Z]{4}([A-Z][0-9]+[A-Z][0-9]+)S.*/.exec(name);
-            if (roomName != undefined) {
-                utils.addToSpawnQueue(
-                    Memory.creeps[name].role, 
-                    roomName[1]
-                );
-            }
+            utils.addToRespawnQueue(
+                Memory.creeps[name].role, 
+                utils.getRoomFor(name)
+            );
 
             delete Memory.creeps[name];
             return;
@@ -28,15 +28,22 @@ module.exports = {
         jobEngine.doWork(creep);
     },
     initRoom: (roomCoords) => {
-        let room = Game.rooms[roomCoords];
-        room.memory.roleCount = {};
+        const room = Game.rooms[roomCoords];
+        room.memory.roleCount = getRoleCountMatrix(room);
 
-        for (let roleName in roles) {
-            let role = roles[roleName];
-            let shouldSpawn = role.getCountForRoom(room);
-            log.debug(`  -> ${role.name}: ${shouldSpawn}`);
-            room.memory.roleCount[roleName] = shouldSpawn;
-            if (0 < shouldSpawn) _.times(shouldSpawn, () => utils.addToSpawnQueue(roleName, roomCoords));
-        }
+        _.forEach(room.memory.roleCount, (count, roleName) => _.times(count, () => utils.addToSpawnQueue(roleName, room)));
+    },
+    updateRoom: (roomCoords) => {
+        const room = Game.rooms[roomCoords];
+        const newCounts = getRoleCountMatrix(room);
+        _(newCounts)
+            .pick((count, roleName) => (room.memory.roleCount[roleName] || 0) < count)
+            .forEach((count, roleName) => 
+                _.times(count - (room.memory.roleCount[roleName] || 0), () => 
+                    utils.addToSpawnQueue(roleName, room)
+                )
+            );
+
+        room.memory.roleCount = newCounts;
     }
 }

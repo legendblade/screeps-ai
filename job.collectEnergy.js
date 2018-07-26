@@ -1,7 +1,7 @@
 module.exports = {
     /** @param {Creep} creep The unit to determine if it should be doing this job */
     isValid: (creep) => {
-        if (creep.carryCapacity <= creep.carry.energy) return false;
+        if (creep.carryCapacity <= creep.carry.energy || creep.room.memory.spawnQueue.length) return false;
 
         cacheTargetData = creep.room.find(FIND_MY_STRUCTURES, {
             filter: (s) => {

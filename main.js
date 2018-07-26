@@ -15,17 +15,33 @@ module.exports.loop = function () {
     }
 
     if (Game.time % 10 == 0) {
-        // Handle spawn queue
-        utils.processSpawnQueue();
-
         // Handle room inits:
         if (!Memory.rooms) Memory.rooms = {};
+
+        const botRoleCounts = Memory.checkSpawns ? _.chain(Game.creeps)
+            .groupBy(c => utils.getRoomFor(c.name))
+            .pick((data, r) => Memory.rooms[r] && Memory.rooms[r].next && Memory.rooms[r].next <= Game.time)
+            .mapValues(r => _.countBy(r, (c) => c.memory.role))
+            .value() : {};
+
         for (let roomCoords in Game.rooms) {
-            if (Memory.rooms[roomCoords].next && Game.time < Memory.rooms[roomCoords].next) continue;
+            // Don't re-init the room here, otherwise we're going to just spawn a billion of them again...
+            if (Memory.rooms[roomCoords] && Memory.rooms[roomCoords].next && Memory.rooms[roomCoords].next <= Game.time) {
+                roleBase.updateRoom(roomCoords);
+
+                // Handle spawn queue
+                const room = Game.rooms[roomCoords];
+                utils.processSpawnQueue(room);
+                if (Memory.checkSpawns) utils.processRespawnQueue(botRoleCounts[roomCoords], room);
+                Memory.rooms[roomCoords].next = Game.time + 5;
+            }
+            if (Memory.rooms[roomCoords]) continue;
 
             log.info(`Initializing new room at ${roomCoords}`);
-            Memory.rooms[roomCoords] = {next: Game.time + 60};
+            Memory.rooms[roomCoords] = {next: Game.time + 5};
             roleBase.initRoom(roomCoords);
         }
+
+        Memory.checkSpawns = false;
     }
 }

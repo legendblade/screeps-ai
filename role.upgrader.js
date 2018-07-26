@@ -4,7 +4,7 @@ module.exports = {
     defaultMemory: {
         'role': 'u'
     },
-    getCountForRoom: (room) => 6,
+    getCountForRoom: (room) => (6),
     getBody: () => [WORK, MOVE, MOVE, CARRY],
     jobs: [
         'upgradeController',
