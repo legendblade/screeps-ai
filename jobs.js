@@ -1,3 +1,4 @@
 module.exports = {
-    harvestEnergy: require('job.harvestEnergy')
+    harvestEnergy: require('job.harvestEnergy'),
+    transferEnergy: require('job.transferEnergy')
 }

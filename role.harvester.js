@@ -11,6 +11,7 @@ module.exports = {
     },
     getBody: () => [WORK, WORK, MOVE, CARRY],
     jobs: [
+        'transferEnergy',
         'harvestEnergy'
     ]
 };

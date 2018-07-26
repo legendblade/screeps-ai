@@ -1,7 +1,7 @@
 module.exports = {
     /** @param {Creep} creep The unit to determine if it should be doing this job */
     isValid: (creep) => {
-        return true; //creep.carry.energy < creep.carryCapacity;
+        return creep.carry.energy < creep.carryCapacity;
     },
     /** @param {Creep} creep The unit doing the work */
     run: (creep) => {
@@ -12,9 +12,7 @@ module.exports = {
                 creep.moveTo(sources[0]);
             }
         } else {
-            if(creep.transfer(Game.spawns['Spawn1'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(Game.spawns['Spawn1']);
-            }
+            return true;
         }
     }
 }
