@@ -29,12 +29,28 @@ module.exports = () => {
          * Temp cache of construction projects; only guaranteed cached this tick.
          */
         'constructions': {
-            /**
-             * @param {function} predicate Optional Filter function
-             */
             get: function() {
                 if (!this._constructions) this._constructions = this.find(FIND_MY_CONSTRUCTION_SITES);
                 return this._constructions;
+            },
+            enumerable: false,
+            configurable: true
+        },
+        /**
+         * Temp cache of basic sites needing repairs; only guaranteed cached this tick.
+         */
+        'basicRepairs': {
+            get: function() {
+                if (!this._basicRepairs) {
+                    this._basicRepairs = this.find(FIND_STRUCTURES, {
+                        filter: (s) => {
+                            // TODO: expand this list:
+                            return s.hits <= (s.hitsMax * 0.75) &&
+                                s.structureType === STRUCTURE_ROAD;
+                        }
+                    });
+                }
+                return this._basicRepairs;
             },
             enumerable: false,
             configurable: true

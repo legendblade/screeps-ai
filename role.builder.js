@@ -7,6 +7,7 @@ module.exports = {
     getCountForRoom: (room) => Math.ceil(room.constructions.length / 10),
     getBody: () => [WORK, MOVE, MOVE, CARRY, CARRY],
     jobs: [
+        'repairBasic',
         'buildRoads',
         'collectEnergy',
         'upgradeController',

@@ -3,5 +3,6 @@ module.exports = {
     transferEnergy: require('job.transferEnergy'),
     upgradeController: require('job.upgradeController'),
     collectEnergy: require('job.collectEnergy'),
-    buildRoads: require('job.buildRoads')
+    buildRoads: require('job.buildRoads'),
+    repairBasic: require('job.repairBasic')
 }
