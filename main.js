@@ -34,8 +34,8 @@ module.exports.loop = function () {
 
             // Handle spawn queue
             const room = Game.rooms[roomCoords];
-            utils.processSpawnQueue(room);
             if (Memory.checkSpawns) utils.processRespawnQueue(botRoleCounts[roomCoords], room);
+            utils.processSpawnQueue(room);
         }
 
         Memory.checkSpawns = false;

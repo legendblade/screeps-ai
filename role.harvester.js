@@ -13,5 +13,6 @@ module.exports = {
     jobs: [
         'transferEnergy',
         'harvestEnergy'
-    ]
+    ],
+    priority: 1
 };

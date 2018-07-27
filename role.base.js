@@ -36,6 +36,8 @@ module.exports = {
     updateRoom: (roomCoords) => {
         const room = Game.rooms[roomCoords];
         const newCounts = getRoleCountMatrix(room);
+
+        // TODO: this only works right now because the spawn counts don't change:
         _(newCounts)
             .pick((count, roleName) => (room.memory.roleCount[roleName] || 0) < count)
             .forEach((count, roleName) => 

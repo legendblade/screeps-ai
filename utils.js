@@ -28,6 +28,7 @@ module.exports.addToSpawnQueue = (role, room) => {
     console.log(`Adding ${role} to ${room.name}'s queue`);
     if (!room.memory.spawnQueue) room.memory.spawnQueue = [];
     room.memory.spawnQueue.push(role);
+    room.memory.spawnUpdated = true;
 };
 
 /** 
@@ -57,29 +58,34 @@ module.exports.processSpawnQueue = (room) => {
     const spawners = room.find(FIND_MY_SPAWNS, (s) => s.spawning === null);
 
     // console.log("Checking spawn queue: " + JSON.stringify(room.memory.spawnQueue));
-    room.memory.spawnQueue = _.chain(room.memory.spawnQueue)
-        .sortBy((s) => (s))
-        .filter((roleName) => {
+
+    // Only sort the list if we've updated:
+    if (room.memory.spawnUpdated) {
+        room.memory.spawnQueue = _.sortBy(room.memory.spawnQueue, (s) => (roles[s].priority || 999))
+        room.memory.spawnUpdated = false;
+    }
+
+    let i = 0;
+    room.memory.spawnUpdated = _.chain(room.memory.spawnQueue)
+        .dropWhile((roleName) => {
+            // Only allow  
+            if (spawners.length <= i++) return false;
+
             const role = roles[roleName];
             const body = role.getBody();
             const cost = module.exports.calcBodyCost(body);
 
             // If we don't have enough energy, wait until we do:
-            if(energyRemaining < cost) return true;
+            if(energyRemaining < cost) return false;
 
             // Find the first spawner we can use:
             const spawner = _.find(spawners, (s) => {
                 return !s.spawning && s.spawnCreep(body, 'test', { dryRun: true }) === OK
             });
 
-            // If we somehow couldn't spawn this one, try again later:
-            if (!spawner) return true;
-
-            const retVal = spawner.spawnCreep(body, module.exports.generateName(role.name, room.name), {
+            if(!spawner || spawner.spawnCreep(body, module.exports.generateName(role.name, room.name), {
                 memory: _.cloneDeep(role.defaultMemory)
-            }) !== OK;
-
-            if (retVal) return true;
+            }) !== OK) return false;
 
             // This will get overwritten by the proper value next tick
             // but would otherwise be null for the rest of this tick
@@ -87,8 +93,9 @@ module.exports.processSpawnQueue = (room) => {
             spawner.spawning = true;
             log.info(`Started spawning new ${role.name} in ${room.name}.`);
             energyRemaining -= cost;
-            return false;
-    }).value();
+            return true;
+        })
+        .value();
 }
 
 /**

@@ -10,5 +10,6 @@ module.exports = {
         'upgradeController',
         'collectEnergy',
         'harvestEnergy'
-    ]
+    ],
+    priority: 10
 };
