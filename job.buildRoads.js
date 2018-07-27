@@ -1,14 +1,22 @@
+var cacheTargetData;
+
 module.exports = {
     /** @param {Creep} creep The unit to determine if it should be doing this job */
     isValid: (creep) => {
-        return creep.carry.energy < creep.carryCapacity;
+        if (creep.carry.energy < creep.carryCapacity) return false;
+
+        // Builder will put a claim on the road object; this isn't currently persisted.
+        cacheTargetData = _.filter(creep.room.constructions, (s) => s.structureType === STRUCTURE_ROAD && !s.claimed);
+        return cacheTargetData.length;
     },
     /** @param {Creep} creep The unit doing the work */
     init: (creep) => {
-        let target = creep.pos.findClosestByPath(creep.room.sources);
+        let target = creep.pos.findClosestByPath(cacheTargetData);
 
         if(target) {
             creep.memory.job.target = target.id;
+            target.claimed = true;
+            console.log(`Builder claiming ${target.id}`)
         } else {
             console.log("Unable to find target");
         }
@@ -21,12 +29,12 @@ module.exports = {
 
         if(!target) return true;
 
-        let status = creep.harvest(target);
+        let status = creep.build(target);
         if(status === ERR_NOT_IN_RANGE) {
-            creep.travelTo(target);
+            creep.travelTo(target, { range: 3 });
         }
 
-        return creep.carryCapacity <= creep.carry.energy 
+        return creep.carry.energy <= 0
             || status === ERR_NOT_ENOUGH_RESOURCES 
             || status === ERR_INVALID_TARGET;
     }

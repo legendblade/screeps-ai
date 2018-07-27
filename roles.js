@@ -1,5 +1,6 @@
 
 module.exports = {
     'h': require('role.harvester'),
-    'u': require('role.upgrader')
+    'u': require('role.upgrader'),
+    'b': require('role.builder')
 };

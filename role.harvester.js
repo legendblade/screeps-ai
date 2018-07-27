@@ -12,7 +12,9 @@ module.exports = {
     getBody: () => [WORK, WORK, MOVE, CARRY],
     jobs: [
         'transferEnergy',
-        'harvestEnergy'
+        'harvestEnergy',
+        'buildRoads', // Because this thing is slow
+        'upgradeController'
     ],
     priority: 1
 };
