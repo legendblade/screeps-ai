@@ -66,7 +66,7 @@ module.exports.processSpawnQueue = (room) => {
     }
 
     let i = 0;
-    room.memory.spawnUpdated = _.chain(room.memory.spawnQueue)
+    room.memory.spawnQueue = _.chain(room.memory.spawnQueue)
         .dropWhile((roleName) => {
             // Only allow  
             if (spawners.length <= i++) return false;

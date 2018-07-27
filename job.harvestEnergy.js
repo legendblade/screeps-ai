@@ -5,6 +5,7 @@ module.exports = {
     },
     /** @param {Creep} creep The unit doing the work */
     init: (creep) => {
+        // TODO: limit to sources which actually have energy
         let target = creep.pos.findClosestByPath(creep.room.sources);
 
         if(target) {
