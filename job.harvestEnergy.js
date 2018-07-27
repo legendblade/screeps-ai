@@ -24,7 +24,7 @@ module.exports = {
 
         let status = creep.harvest(target);
         if(status === ERR_NOT_IN_RANGE) {
-            creep.travelTo(target);
+            creep.travelAndQueueRoad(target);
         }
 
         return creep.carryCapacity <= creep.carry.energy 

@@ -10,7 +10,7 @@ module.exports = {
         // Do the transfer:
         let status = creep.upgradeController(creep.room.controller);
         if(status === ERR_NOT_IN_RANGE) {
-            creep.travelTo(creep.room.controller, { range: 3 });
+            creep.travelAndQueueRoad(creep.room.controller, 3);
         }
 
         // If we're out of energy, we're done with this job:

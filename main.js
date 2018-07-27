@@ -1,5 +1,6 @@
 // Prototype extensions:
 const Traveler = require('Traveler');
+require('prototypes.creep')();
 require('prototypes.room')();
 
 // The rest of the owl:
