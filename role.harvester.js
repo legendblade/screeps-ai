@@ -5,14 +5,15 @@ module.exports = {
         'role': 'h'
     },
     getCountForRoom: function(room) {
-        //console.log(room);
-        // TODO: calculate based on energy node count
-        return 6;
+        return 5; // Always the maximum number of containers
     },
     getBody: () => [WORK, WORK, MOVE, CARRY],
     jobs: [
-        'transferEnergy',
+        'claimMiningPoint',
+        'createContainer',
+        // 'repairContainer',
         'harvestEnergy',
+        'transferEnergy',
         'buildRoads', // Because this thing is slow
         'upgradeController'
     ],

@@ -112,3 +112,14 @@ module.exports.processRespawnQueue = (existingCounts, room) => {
         _.times(count - ((existingCounts[roleName] || 0) + (existingQueue[roleName] || 0)), () => 
             module.exports.addToSpawnQueue(roleName, room)));
 }
+
+let _creepRoomMap = undefined;
+module.exports.getCreepsByRoom = () => {
+    if (_creepRoomMap) return _creepRoomMap;
+    _creepRoomMap = _.groupBy(Game.creeps, c => c.assignedRoom);
+    return _creepRoomMap;
+}
+
+module.exports.regenRoomMap = () => {
+    _creepRoomMap = undefined;
+}

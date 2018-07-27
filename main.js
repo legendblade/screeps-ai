@@ -21,10 +21,8 @@ module.exports.loop = function () {
         // Handle room inits:
         if (!Memory.rooms) Memory.rooms = {};
 
-        const botRoleCounts = Memory.checkSpawns ? _.chain(Game.creeps)
-            .groupBy(c => utils.getRoomFor(c.name))
-            .mapValues(r => _.countBy(r, (c) => c.memory.role))
-            .value() : {};
+        if (Memory.checkSpawns) utils.regenRoomMap();
+        const botRoleCounts = Memory.checkSpawns ? _.mapValues(utils.getCreepsByRoom(), r => _.countBy(r, (c) => c.memory.role)) : {};
 
         for (let roomCoords in Game.rooms) {
             if (!Memory.rooms[roomCoords]) {

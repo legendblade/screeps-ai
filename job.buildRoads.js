@@ -1,3 +1,4 @@
+const buildDef = require('jobDef.build');
 var cacheTargetData;
 
 module.exports = {
@@ -16,26 +17,10 @@ module.exports = {
         if(target) {
             creep.memory.job.target = target.id;
             target.claimed = true;
-            console.log(`Builder claiming ${target.id}`)
         } else {
             console.log("Unable to find target");
         }
     },
     /** @param {Creep} creep The unit doing the work */
-    run: (creep) => {
-        // Get the target:
-        if (!creep.memory.job.target) return true;
-        let target = Game.getObjectById(creep.memory.job.target);
-
-        if(!target) return true;
-
-        let status = creep.build(target);
-        if(status === ERR_NOT_IN_RANGE) {
-            creep.travelTo(target, { range: 3 });
-        }
-
-        return creep.carry.energy <= 0
-            || status === ERR_NOT_ENOUGH_RESOURCES 
-            || status === ERR_INVALID_TARGET;
-    }
+    run: (creep) => buildDef.build(creep)
 }

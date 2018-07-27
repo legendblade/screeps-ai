@@ -4,5 +4,7 @@ module.exports = {
     upgradeController: require('job.upgradeController'),
     collectEnergy: require('job.collectEnergy'),
     buildRoads: require('job.buildRoads'),
-    repairBasic: require('job.repairBasic')
+    repairBasic: require('job.repairBasic'),
+    claimMiningPoint: require('job.claimMiningPoint'),
+    createContainer: require('job.createContainer')
 }
