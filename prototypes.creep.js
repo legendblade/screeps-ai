@@ -13,7 +13,8 @@ module.exports = () => {
                 _.chain(room.constructions)
                     .filter((s) => s.structureType === STRUCTURE_ROAD)
                     .forEach((s) => {
-                        matrix.set(s.pos.x, s.pos.y, 1.25);
+                        // Plains roads are 300, swamp roads are 1500 to build:
+                        matrix.set(s.pos.x, s.pos.y, s.progressTotal <= 300 ? 1.25 : 7.5);
                     })
                     .value();
                 return matrix;
