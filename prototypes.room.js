@@ -1,4 +1,5 @@
 require('prototypes.structure');
+const roles = require('roles');
 
 module.exports = () => {
     Object.defineProperties(Room.prototype, {
@@ -110,5 +111,29 @@ module.exports = () => {
         if (positions.length <= 0) return null;
 
         return start.findClosestByPath(positions);
+    }
+
+    Room.prototype.getRoleCountMatrix = function() {
+        return _.mapValues(roles, (role) => role.getCountForRoom(this));
+    }
+
+    Room.prototype.init = function() {
+        this.memory.roleCount = this.getRoleCountMatrix();
+
+        _.forEach(this.memory.roleCount, (count, roleName) => 
+            _.times(count, () => 
+                utils.addToSpawnQueue(roleName, room)
+            ));
+    }
+
+    Room.prototype.update = function() {
+        // Deal with updating role counts:
+        const newCounts = this.getRoleCountMatrix();
+        if(_.find(newCounts, (c, r) => (this.memory.roleCount[r] || 0) < c)) {
+            Memory.checkSpawns = true;
+        }
+        this.memory.roleCount = newCounts;
+
+        // TODO: Room stages & controllers
     }
 }

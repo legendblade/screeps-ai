@@ -28,24 +28,9 @@ module.exports = {
         jobEngine.doWork(creep);
     },
     initRoom: (roomCoords) => {
-        const room = Game.rooms[roomCoords];
-        room.memory.roleCount = getRoleCountMatrix(room);
-
-        _.forEach(room.memory.roleCount, (count, roleName) => _.times(count, () => utils.addToSpawnQueue(roleName, room)));
+        Game.rooms[roomCoords].init();
     },
     updateRoom: (roomCoords) => {
-        const room = Game.rooms[roomCoords];
-        const newCounts = getRoleCountMatrix(room);
-
-        // TODO: this only works right now because the spawn counts don't change:
-        _(newCounts)
-            .pick((count, roleName) => (room.memory.roleCount[roleName] || 0) < count)
-            .forEach((count, roleName) => 
-                _.times(count - (room.memory.roleCount[roleName] || 0), () => 
-                    utils.addToSpawnQueue(roleName, room)
-                )
-            );
-
-        room.memory.roleCount = newCounts;
+        Game.rooms[roomCoords].update();
     }
 }
