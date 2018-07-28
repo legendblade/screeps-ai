@@ -20,24 +20,12 @@ module.exports.loop = function () {
     if (Game.time % 10 == 0) {
         // Handle room inits:
         if (!Memory.rooms) Memory.rooms = {};
+        utils.regenRoomMap();
 
-        if (Memory.checkSpawns) utils.regenRoomMap();
-        const botRoleCounts = Memory.checkSpawns ? _.mapValues(utils.getCreepsByRoom(), r => _.countBy(r, (c) => c.memory.role)) : {};
-
-        for (let roomCoords in Game.rooms) {
-            if (!Memory.rooms[roomCoords]) {
-                log.info(`Initializing new room at ${roomCoords}`);
-                Memory.rooms[roomCoords] = {};
-                roleBase.initRoom(roomCoords);
-            } else {
-                roleBase.updateRoom(roomCoords);
-            }
-
-            // Handle spawn queue
-            const room = Game.rooms[roomCoords];
-            if (Memory.checkSpawns) utils.processRespawnQueue(botRoleCounts[roomCoords], room);
-            utils.processSpawnQueue(room);
-        }
+        _.forEach(Game.rooms, (room, roomCoords) => {
+            if (!Memory.rooms[roomCoords]) room.init();
+            room.update();
+        });
 
         Memory.checkSpawns = false;
     }

@@ -1,5 +1,9 @@
 require('prototypes.structure');
 const roles = require('roles');
+const utils = require('utils');
+const controlEngine = require('controlEngine');
+const controllers = require('controllers');
+const bootControl = require('controller.boot'); // Special case
 
 module.exports = () => {
     Object.defineProperties(Room.prototype, {
@@ -54,6 +58,21 @@ module.exports = () => {
                     });
                 }
                 return this._basicRepairs;
+            },
+            enumerable: false,
+            configurable: true
+        },
+        /**
+         * Temp cache of all friendly creeps in the room
+         */
+        'creeps': {
+            get: function() {
+                if (!this._creeps) {
+                    this._creeps = this.find(FIND_MY_CREEPS, {
+                        filter: (s) => !s.spawning
+                    });
+                }
+                return this._creeps;
             },
             enumerable: false,
             configurable: true
@@ -114,26 +133,30 @@ module.exports = () => {
     }
 
     Room.prototype.getRoleCountMatrix = function() {
-        return _.mapValues(roles, (role) => role.getCountForRoom(this));
+        return controllers[this.memory.ctrl].getRoleCounts(this);
     }
 
     Room.prototype.init = function() {
-        this.memory.roleCount = this.getRoleCountMatrix();
-
-        _.forEach(this.memory.roleCount, (count, roleName) => 
-            _.times(count, () => 
-                utils.addToSpawnQueue(roleName, room)
-            ));
+        this.memory = {ctrl: 'boot'};
+        bootControl.init(this); // This would never get called otherwise
     }
 
     Room.prototype.update = function() {
         // Deal with updating role counts:
         const newCounts = this.getRoleCountMatrix();
-        if(_.find(newCounts, (c, r) => (this.memory.roleCount[r] || 0) < c)) {
+        if(!Memory.checkSpawns && _.find(newCounts, (c, r) => (this.memory.roleCount[r] || 0) < c)) {
             Memory.checkSpawns = true;
         }
         this.memory.roleCount = newCounts;
 
-        // TODO: Room stages & controllers
+        // Handle spawn queue
+        if (Memory.checkSpawns) {
+            const botCounts = utils.getCreepsByRoom()[this.name];
+            utils.processRespawnQueue(botCounts ? _.countBy(botCounts, (c) => c.memory.role) : {}, this);
+        }
+        // TODO: consider wrapping this into the room itself instead of utils
+        utils.processSpawnQueue(this);
+
+        controlEngine.handle(this);
     }
 }

@@ -8,6 +8,8 @@ module.exports = {
     isValid: (creep) => {
         if (creep.memory.spot) return false;
 
+        // TODO: Prioritize any space near a source with a container already.
+
         const otherHarvesters = _.filter(utils.getCreepsByRoom()[creep.room.name] || [], (c) => c.memory.role === 'h');
 
         // Find the first available source...
