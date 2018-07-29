@@ -159,4 +159,23 @@ module.exports = () => {
 
         controlEngine.handle(this);
     }
+
+    /**
+     * Encodes an internal position
+     * @param {RoomPosition} pos The position to encode
+     * @returns {String} The encoded position
+     */
+    Room.prototype.getCharPosition = function(pos) {
+        return String.fromCharCode(pos.x + (pos.y << 6));
+    }
+
+    /**
+     * Decodes a char internal position to a RoomPosition
+     * @param {String} char The character encoded position
+     * @returns {RoomPosition} The position in this room
+     */
+    Room.prototype.getPositionFromChar = function(char) {
+        const unencode = char.charCodeAt();
+        return new RoomPosition(unencode & 0x3F, unencode >> 6, this.name);
+    }
 }
