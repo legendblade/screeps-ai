@@ -76,6 +76,16 @@ module.exports = () => {
             },
             enumerable: false,
             configurable: true
+        },
+        'harvestPoints': {
+            get: function() {
+                return this.memory.hvstpts;
+            },
+            set: function(newValue) {
+                this.memory.hvstpts = newValue;
+            },
+            enumerable: false,
+            configurable: true
         }
     });
 
@@ -139,6 +149,7 @@ module.exports = () => {
     Room.prototype.init = function() {
         this.memory = {ctrl: 'boot'};
         bootControl.init(this); // This would never get called otherwise
+        this.memory.roleCount = this.getRoleCountMatrix();
     }
 
     Room.prototype.update = function() {
@@ -166,7 +177,8 @@ module.exports = () => {
      * @returns {String} The encoded position
      */
     Room.prototype.getCharPosition = function(pos) {
-        return String.fromCharCode(pos.x + (pos.y << 6));
+        if (pos.pos) pos = pos.pos;
+        return (pos.x && pos.y) ? String.fromCharCode(pos.x + (pos.y << 6)) : '';
     }
 
     /**
@@ -175,6 +187,7 @@ module.exports = () => {
      * @returns {RoomPosition} The position in this room
      */
     Room.prototype.getPositionFromChar = function(char) {
+        if (char === '') return undefined;
         const unencode = char.charCodeAt();
         return new RoomPosition(unencode & 0x3F, unencode >> 6, this.name);
     }

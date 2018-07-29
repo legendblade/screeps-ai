@@ -37,6 +37,6 @@ module.exports = {
     handle: (room) => {
         // Start by checking if we should transition into another state:
         checkTransition(room);
-        if(controllers[room.memory.ctrl].run) controllers[room.memory.ctrl].run();
+        if(controllers[room.memory.ctrl].run) controllers[room.memory.ctrl].run(room);
     }
 }

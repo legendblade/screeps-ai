@@ -5,7 +5,7 @@ module.exports = {
      * Determines how many of each role should exist in the room during this stage
      * @param {Room} room The room to check
      */
-    getRoleCounts: (room) => ({'h': room.sources.length * 3}),
+    getRoleCounts: (room) => ({'x': room.sources.length * 3}),
 
     /**
      * Called when first entering this stage
@@ -13,6 +13,20 @@ module.exports = {
      */
     init: (room) => {
         log.info(`Initializing new room at ${room.name}`);
+
+        if(!room.harvestPoints) {
+            const spawn = _.first(room.find(FIND_MY_SPAWNS));
+
+            if (spawn) {
+                room.harvestPoints = _.map(room.sources, (s) => {
+                    return room.getCharPosition(
+                        room.findNearestOpenPositionAround(spawn.pos, s.pos, 1, () => false)
+                    );
+                });
+            } else {
+                room.harvestPoints = [];
+            }
+        }
     },
 
     /**
@@ -20,7 +34,7 @@ module.exports = {
      * @param {Room} room The room
      */
     run: (room) => {
-
+        _.forEach(room.harvestPoints, (hp) => console.log(JSON.stringify(room.getPositionFromChar(hp))));
     },
 
     /**
