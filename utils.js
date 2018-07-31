@@ -15,8 +15,7 @@ module.exports.getRoomFor = (name) => {
 // Totally unecessary fluff; return undefined if it becomes a problem:
 module.exports.generateName = (roleName, roomName) => {
     return `WB${roleName}${roomName}Sxxxxxxxx`.replace(/[x]/g, (c) => {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
+        return (Math.random() * 16 | 0).toString(16);
     }).toUpperCase();
 }
 
