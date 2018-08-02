@@ -22,10 +22,7 @@ module.exports.loop = function () {
         if (!Memory.rooms) Memory.rooms = {};
         utils.regenRoomMap();
 
-        _.forEach(Game.rooms, (room, roomCoords) => {
-            if (!Memory.rooms[roomCoords]) room.init();
-            room.update();
-        });
+        _.forEach(Game.rooms, (room) => room.update());
 
         Memory.checkSpawns = false;
     }

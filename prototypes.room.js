@@ -149,13 +149,14 @@ module.exports = () => {
     Room.prototype.init = function() {
         this.memory = {ctrl: 'boot'};
         bootControl.init(this); // This would never get called otherwise
-        this.memory.roleCount = this.getRoleCountMatrix();
     }
 
     Room.prototype.update = function() {
+        if (!this.memory) this.init();
+
         // Deal with updating role counts:
         const newCounts = this.getRoleCountMatrix();
-        if(!Memory.checkSpawns && _.find(newCounts, (c, r) => (this.memory.roleCount[r] || 0) < c)) {
+        if(!Memory.checkSpawns && !this.memory.roleCount || _.find(newCounts, (c, r) => (this.memory.roleCount[r] || 0) < c)) {
             Memory.checkSpawns = true;
         }
         this.memory.roleCount = newCounts;

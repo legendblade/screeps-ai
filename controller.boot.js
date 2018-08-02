@@ -34,7 +34,7 @@ module.exports = {
      * @param {Room} room The room
      */
     run: (room) => {
-        _.forEach(room.harvestPoints, (hp) => console.log(JSON.stringify(room.getPositionFromChar(hp))));
+
     },
 
     /**

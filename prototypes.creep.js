@@ -1,3 +1,5 @@
+const ROLES = require('roles');
+
 module.exports = () => {
     Creep.prototype.travelAndQueueRoad = function(target, range) {
         range = range || 1;
@@ -39,5 +41,19 @@ module.exports = () => {
             enumerable: false,
             configurable: true
         },
+        'role': {
+            get: function() {
+                return ROLES[this.roleId];
+            },
+            enumerable: false,
+            configurable: false
+        },
+        'roleId': {
+            get: function() {
+                return this.memory.role;
+            },
+            enumerable: false,
+            configurable: false
+        }
     });
 }
