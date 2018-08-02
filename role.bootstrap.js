@@ -1,14 +1,14 @@
 // The actual role
 module.exports = {
     name: 'BOOT',
-    defaultMemory: {
-        'role': 'x'
-    },
     getBody: () => [WORK, WORK, MOVE, CARRY],
     jobs: [
+        'maintainController',
         'harvestEnergy',
-        'transferEnergy',
-        'upgradeController'
+        'transferEnergy'
     ],
-    priority: 1
+    priority: 1,
+    init: (name, memory, spawner) => {
+        // TODO: assign harvest point based on other bots
+    }
 };

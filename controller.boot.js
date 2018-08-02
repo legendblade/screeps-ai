@@ -14,14 +14,19 @@ module.exports = {
     init: (room) => {
         log.info(`Initializing new room at ${room.name}`);
 
+        // TODO: some of this logic will need to move when we start remote harvesting.
         if(!room.harvestPoints) {
             const spawn = _.first(room.find(FIND_MY_SPAWNS));
 
             if (spawn) {
                 room.harvestPoints = _.map(room.sources, (s) => {
-                    return room.getCharPosition(
-                        room.findNearestOpenPositionAround(spawn.pos, s.pos, 1, () => false)
-                    );
+                    // While this is less elegant than chaining a forEach, it requires less
+                    // computational power, as there'd need to be multiple loops and map calls otherwise.
+                    const point = room.findNearestOpenPositionAround(spawn.pos, s.pos, 1, () => false);
+                    if(!point) return '';
+
+                    creep.room.planConstruction(point, STRUCTURE_CONTAINER, 1)
+                    return room.getCharPosition(point);
                 });
             } else {
                 room.harvestPoints = [];

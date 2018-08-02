@@ -78,13 +78,15 @@ module.exports.processSpawnQueue = (room) => {
             if(energyRemaining < cost) return false;
 
             // Find the first spawner we can use:
-            const spawner = _.find(spawners, (s) => {
-                return !s.spawning && s.spawnCreep(body, 'test', { dryRun: true }) === OK
-            });
+            const spawner = _.find(spawners, (s) => !s.spawning);
+            if (!spawner) return false;
 
-            if(!spawner || spawner.spawnCreep(body, module.exports.generateName(role.name, room.name), {
-                memory: _.cloneDeep(role.defaultMemory)
-            }) !== OK) return false;
+            // Do the spawn:
+            const name = module.exports.generateName(role.name, room.name);
+            const mem = { role: roleName };
+            if (role.init) role.init(name, mem, spawner);
+
+            if(spawner.spawnCreep(body, name, { memory: mem }) !== OK) return false;
 
             // This will get overwritten by the proper value next tick
             // but would otherwise be null for the rest of this tick

@@ -192,4 +192,16 @@ module.exports = () => {
         const unencode = char.charCodeAt();
         return new RoomPosition(unencode & 0x3F, unencode >> 6, this.name);
     }
+
+    /**
+     * Plans for a construction at the given point.
+     * @param {RoomPosition} pos The position to plan at
+     * @param {String} type The type of construction
+     * @param {number} priority The priority to take care of this construction at.
+     */
+    Room.prototype.planConstruction = function(pos, type, priority, name) {
+        priority = priority || 50;
+        // TODO: implement actual construction queue
+        this.createConstructionSite(pos, type, name);
+    }
 }
