@@ -77,6 +77,13 @@ module.exports = () => {
             enumerable: false,
             configurable: true
         },
+        'assignedCreeps': {
+            get: function() {
+                return utils.getCreepsByRoom()[this.name] || {};
+            },
+            enumerable: false,
+            configurable: false
+        },
         'harvestPoints': {
             get: function() {
                 return this.memory.hvstpts;
@@ -163,7 +170,7 @@ module.exports = () => {
 
         // Handle spawn queue
         if (Memory.checkSpawns) {
-            const botCounts = utils.getCreepsByRoom()[this.name];
+            const botCounts = this.assignedCreeps;
             utils.processRespawnQueue(botCounts ? _.countBy(botCounts, (c) => c.memory.role) : {}, this);
         }
         // TODO: consider wrapping this into the room itself instead of utils
