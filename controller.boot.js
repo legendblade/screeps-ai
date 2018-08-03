@@ -15,7 +15,7 @@ module.exports = {
         log.info(`Initializing new room at ${room.name}`);
 
         // TODO: some of this logic will need to move when we start remote harvesting.
-        if(!room.harvestPoints) {
+        if(_.isEmpty(room.harvestPoints)) {
             const spawn = _.first(room.find(FIND_MY_SPAWNS));
 
             if (spawn) {
@@ -25,7 +25,7 @@ module.exports = {
                     const point = room.findNearestOpenPositionAround(spawn.pos, s.pos, 1, () => false);
                     if(!point) return '';
 
-                    creep.room.planConstruction(point, STRUCTURE_CONTAINER, 1)
+                    room.planConstruction(point, STRUCTURE_CONTAINER, 1)
                     return room.getCharPosition(point);
                 });
             } else {

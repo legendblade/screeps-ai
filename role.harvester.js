@@ -6,10 +6,9 @@ module.exports = {
     },
     getBody: () => [WORK, WORK, MOVE, CARRY],
     jobs: [
-        'claimMiningPoint',
-        'createContainer',
         // 'repairContainer',
-        'harvestEnergy'
+        'harvestEnergy',
+        'transferEnergy' // ? Should this ever do this?
     ],
     priority: 2
 };

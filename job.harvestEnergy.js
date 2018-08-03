@@ -5,14 +5,7 @@ module.exports = {
     },
     /** @param {Creep} creep The unit doing the work */
     init: (creep) => {
-        // TODO: limit to sources which actually have energy
-        let target = creep.pos.findClosestByPath(creep.room.sources);
-
-        if(target) {
-            creep.memory.job.target = target.id;
-        } else {
-            console.log("Unable to find target");
-        }
+        creep.memory.job.target = creep.memory.source;
     },
     /** @param {Creep} creep The unit doing the work */
     run: (creep) => {
@@ -24,7 +17,7 @@ module.exports = {
 
         let status = creep.harvest(target);
         if(status === ERR_NOT_IN_RANGE) {
-            creep.travelAndQueueRoad(target);
+            creep.travelTo(target);
         }
 
         return creep.carryCapacity <= creep.carry.energy 

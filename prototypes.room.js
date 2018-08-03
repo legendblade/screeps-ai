@@ -7,6 +7,17 @@ const bootControl = require('controller.boot'); // Special case
 
 module.exports = () => {
     Object.defineProperties(Room.prototype, {
+        'spawnQueue': {
+            get: function() {
+                if(!this.memory.sq) this.memory.sq = [];
+                return this.memory.sq;
+            },
+            set: function(newValue) {
+                this.memory.sq = newValue;
+            },
+            enumerable: true,
+            configurable: true
+        },
         /**
          * Used to cache source data for faster lookup at the expense of memory.
          */
@@ -159,7 +170,7 @@ module.exports = () => {
     }
 
     Room.prototype.update = function() {
-        if (!this.memory) this.init();
+        if (!this.memory || !this.memory.ctrl) this.init();
 
         // Deal with updating role counts:
         const newCounts = this.getRoleCountMatrix();

@@ -25,8 +25,8 @@ module.exports.generateName = (roleName, roomName) => {
  */
 module.exports.addToSpawnQueue = (role, room) => {
     console.log(`Adding ${role} to ${room.name}'s queue`);
-    if (!room.memory.spawnQueue) room.memory.spawnQueue = [];
-    room.memory.spawnQueue.push(role);
+    if (!room.spawnQueue) room.spawnQueue = [];
+    room.spawnQueue.push(role);
     room.memory.spawnUpdated = true;
 };
 
@@ -51,21 +51,21 @@ module.exports.calcBodyCost = (body) => {
  * @param {Room} room The room to process
  */
 module.exports.processSpawnQueue = (room) => {
-    if (!room || !room.memory.spawnQueue) return;
+    if (!room || !room.spawnQueue) return;
 
     let energyRemaining = room.energyAvailable;
     const spawners = room.find(FIND_MY_SPAWNS, (s) => s.spawning === null);
 
-    // console.log("Checking spawn queue: " + JSON.stringify(room.memory.spawnQueue));
+    // console.log("Checking spawn queue: " + JSON.stringify(room.spawnQueue));
 
     // Only sort the list if we've updated:
     if (room.memory.spawnUpdated) {
-        room.memory.spawnQueue = _.sortBy(room.memory.spawnQueue, (s) => (roles[s].priority || 999))
+        room.spawnQueue = _.sortBy(room.spawnQueue, (s) => (roles[s].priority || 999))
         room.memory.spawnUpdated = false;
     }
 
     let i = 0;
-    room.memory.spawnQueue = _.chain(room.memory.spawnQueue)
+    room.spawnQueue = _.chain(room.spawnQueue)
         .dropWhile((roleName) => {
             // Only allow  
             if (spawners.length <= i++) return false;
@@ -107,7 +107,7 @@ module.exports.processSpawnQueue = (room) => {
  * @param {Room} room The room to process
  */
 module.exports.processRespawnQueue = (existingCounts, room) => {
-    const existingQueue = _.countBy(room.memory.spawnQueue, (r) => (r));
+    const existingQueue = _.countBy(room.spawnQueue, (r) => (r));
 
     _.forEach(room.memory.roleCount, (count, roleName) =>
         _.times(count - ((existingCounts[roleName] || 0) + (existingQueue[roleName] || 0)), () => 
