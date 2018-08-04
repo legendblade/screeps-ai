@@ -1,4 +1,3 @@
-require('prototypes.structure');
 const roles = require('roles');
 const utils = require('utils');
 const controlEngine = require('controlEngine');
@@ -114,29 +113,87 @@ module.exports = () => {
             },
             enumerable: false,
             configurable: true
+        },
+        'upgradeStore': {
+            get: function() {
+                return this.getPositionOrStructure('u', '_upgradeStore');
+            },
+            set: function(newValue) {
+                this.setPositionOrStructure(newValue, 'u', '_upgradeStore');
+            },
+            enumerable: true,
+            configurable: false
+        },
+        'centralStore': {
+            get: function() {
+                return this.getPositionOrStructure('c', '_centralStore');
+            },
+            set: function(newValue) {
+                this.setPositionOrStructure(newValue, 'c', '_centralStore');
+            },
+            enumerable: true,
+            configurable: false
         }
     });
+
+    /**
+     * Gets a position or structure from memory or cache
+     * @param {String} memIdx The memory index to retrieve from
+     * @param {String} privateIdx The cache index to retrieve from
+     */
+    Room.prototype.getPositionOrStructure = function(memIdx, privateIdx) {
+        if (this[privateIdx]) return this[privateIdx];
+        if (!this.memory[memIdx]) return undefined;
+
+        // Deserialize it:
+        if (this.memory[memIdx].length <= 1) this[privateIdx] = this.getPositionFromChar(this.memory[memIdx]);
+        else this[privateIdx] = Game.getObjectById(this.memory[memIdx]); 
+
+        return this[privateIdx];
+    }
+
+    /**
+     * Stores a position or structure in the given memory and cache locations.
+     * @param {RoomPosition | Structure} newValue The value to store
+     * @param {String} memIdx The index in memory to store the value
+     * @param {String} privateIdx The index on the object to cache the value this tick
+     */
+    Room.prototype.setPositionOrStructure = function(newValue, memIdx, privateIdx) {
+        if (!newValue) {
+            delete this.memory[memIdx];
+            delete this[privateIdx];
+            return;
+        }
+
+        if (newValue.id) this.memory[memIdx] = newValue.id;
+        else this.memory[memIdx] = this.getCharPosition(newValue);
+        this[privateIdx] = newValue;
+    }
 
     /**
      * Finds an available position in the room around a given point
      * @param {RoomPosition} pos The target position
      * @param {number} range Optional range to search in; default 1
      * @param {function} predicate An optional filter function
+     * @param {number} deadZone Optional range from the center to ignore
      * @returns {RoomPosition[]} An array of room positions that are open
      */
-    Room.prototype.findOpenPositionsAround = function(pos, range, predicate) {
+    Room.prototype.findOpenPositionsAround = function(pos, range, predicate, deadZone) {
         range = range || 1;
+        deadZone = deadZone || 0;
         if (!predicate) {
             predicate = (thing) => thing.type === 'creep';
         }
 
         const area = this.lookAtArea(pos.y-range, pos.x-range, pos.y+range, pos.x+range);
         const output = [];
+        const min = 0-deadZone;
+        const max = deadZone;
         _.forEach(area, (row, y) => {
             _.chain(row)
                 .pick((s, x) => {
                     // The target square is never valid:
-                    if (y === pos.y && x === pos.x) return false;
+                    if ((pos.y - y).isBetween(min, max) && (pos.x - x).isBetween(min, max)) return false;
 
                     // Find the first impassible thing in this spot:
                     return !_.find(s, (thing) => {
@@ -161,10 +218,11 @@ module.exports = () => {
      * @param {RoomPosition} target The target area to find a position near
      * @param {int} range Optional range to search in from the target; default 1
      * @param {function} predicate Optional search predicate; defaults to squares not containing bots.
+     * @param {number} deadZone Optional range from the center to ignore
      * @returns {RoomPosition} The nearest empty space, or null if one couldn't be found.
      */
-    Room.prototype.findNearestOpenPositionAround = function(start, target, range, predicate) {
-        const positions = this.findOpenPositionsAround(target, range, predicate);
+    Room.prototype.findNearestOpenPositionAround = function(start, target, range, predicate, deadZone) {
+        const positions = this.findOpenPositionsAround(target, range, predicate, deadZone);
         if (positions.length <= 0) return null;
 
         return start.findClosestByPath(positions);
@@ -231,5 +289,57 @@ module.exports = () => {
         priority = priority || 50;
         // TODO: implement actual construction queue
         this.createConstructionSite(pos, type, name);
+    }
+
+    /**
+     * Sets up main and secondary harvest points near the initial position
+     * @param {RoomPosition} pos The spawn or entry position
+     */
+    Room.prototype.setupHarvestPoints = function(pos) {
+        // TODO: Prioritize existing container?
+        _.forEach(this.sources, (s) => {
+            // Find all our points:
+            const points = this.findOpenPositionsAround(s.pos, 1, () => false);
+            if (points.length <= 0) return;
+
+            // Find the nearest one:
+            const point = pos.findClosestByPath(points);
+            if(!point) point = points[0];
+
+            // Deal with the primary point:
+            this.planConstruction(point, STRUCTURE_CONTAINER, 1)
+            room.harvestPoints.push(this.getCharPosition(point));
+
+            // Now deal with the other spots:
+            _.forEach(points, (p) => {
+                if(p.isEqualTo(point)) return;
+                this.secondaryHarvestPoints.push(this.getCharPosition(p));
+            });
+        });
+    }
+
+    /**
+     * Sets up upgrade point
+     * @param {RoomPosition} pos The spawn or entry position
+     */
+    Room.prototype.setupUpgradePoint = function(pos) {
+        // Find spots that are at at a range of 3 from the controller
+        const point = pos.findClosestByPath(
+            this.findOpenPositionsAround(this.controller.pos, 3, () => false, 2)
+        );
+
+        this.planConstruction(point, STRUCTURE_CONTAINER, 1)
+        this.upgradeStore = this.getCharPosition(point);
+    }
+
+    /**
+     * Sets up the central storage point
+     * @param {RoomPosition} pos The spawn or entry position
+     */
+    Room.prototype.setupCentralPoint = function(pos) {
+        // ? Should this possibly be planned based on distance from other points?
+        const point = new RoomPosition(pos.x, pos.y + 1, this.name);
+        this.planConstruction(point, STRUCTURE_CONTAINER, 1)
+        this.centralStore = this.getCharPosition(point);
     }
 }

@@ -1,5 +1,6 @@
 // Prototype extensions:
 const Traveler = require('Traveler');
+require('prototypes.number')();
 require('prototypes.creep')();
 require('prototypes.structure')();
 require('prototypes.room')();
