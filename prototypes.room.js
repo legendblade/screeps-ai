@@ -53,24 +53,45 @@ module.exports = () => {
             enumerable: false,
             configurable: true
         },
+        'structures': {
+            get: function() {
+                if (!this._structures) {
+                    this._structures = this.find(FIND_STRUCTURES, {
+                        filter: (s) => s.my || s.structureType === STRUCTURE_ROAD
+                    });
+                }
+                return this._structures;
+            },
+            enumerable: false,
+            configurable: false
+        },
         /**
          * Temp cache of basic sites needing repairs; only guaranteed cached this tick.
          */
         'basicRepairs': {
             get: function() {
                 if (!this._basicRepairs) {
-                    this._basicRepairs = this.find(FIND_STRUCTURES, {
-                        filter: (s) => {
-                            // TODO: expand this list:
-                            return s.hits <= (s.hitsMax * 0.75) &&
-                                s.structureType === STRUCTURE_ROAD;
-                        }
+                    this._basicRepairs = _.filter(this.structures, (s) => {
+                        // TODO: expand this list:
+                        return s.hits <= (s.hitsMax * 0.75) &&
+                            s.structureType === STRUCTURE_ROAD;
                     });
                 }
                 return this._basicRepairs;
             },
             enumerable: false,
             configurable: true
+        },
+        /**
+         * List of containers in the zone
+         */
+        'containers': {
+            get: function() {
+                if (!this._containers) this._containers = _.filter(this.structures, (s) => s.structureType === STRUCTURE_CONTAINER);
+                return this._containers;
+            },
+            enumerable: false,
+            configurable: false
         },
         /**
          * Temp cache of all friendly creeps in the room
