@@ -4,6 +4,7 @@ module.exports = {
     /**
      * Determines how many of each role should exist in the room during this stage
      * @param {Room} room The room to check
+     * TODO: This should be based on the number of available spots around sources, not just assuming 3.
      */
     getRoleCounts: (room) => ({'x': room.sources.length * 3}),
 
@@ -19,15 +20,30 @@ module.exports = {
             const spawn = _.first(room.find(FIND_MY_SPAWNS));
 
             if (spawn) {
-                room.harvestPoints = _.map(room.sources, (s) => {
-                    // While this is less elegant than chaining a forEach, it requires less
-                    // computational power, as there'd need to be multiple loops and map calls otherwise.
-                    const point = room.findNearestOpenPositionAround(spawn.pos, s.pos, 1, () => false);
-                    if(!point) return '';
+                const main = [];
+                const secondary = [];
+                _.forEach(room.sources, (s) => {
+                    // Find all our points:
+                    const points = room.findOpenPositionsAround(s.pos, 1, () => false);
+                    if (points.length <= 0) return;
 
+                    // Find the nearest one:
+                    const point = spawn.findClosestByPath(points);
+                    if(!point) point = points[0];
+
+                    // Deal with the primary point:
                     room.planConstruction(point, STRUCTURE_CONTAINER, 1)
-                    return room.getCharPosition(point);
+                    main.push(room.getCharPosition(point));
+
+                    // Now deal with the other spots:
+                    _.forEach(points, (p) => {
+                        if(p.isEqualTo(point)) return;
+                        secondary.push(room.getCharPosition(p));
+                    });
                 });
+
+                room.harvestPoints = main;
+                room.secondaryHarvestPoints = secondary;
             } else {
                 room.harvestPoints = [];
             }

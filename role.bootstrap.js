@@ -17,6 +17,7 @@ module.exports = {
             .countBy((c) => c.memory.source)
             .value();
 
+        // TODO: Include available spots around sources in targeting
         memory.source = _.min(spawner.room.sources, (c) => sourceCounts[c.id] || 0).id;
     }
 };

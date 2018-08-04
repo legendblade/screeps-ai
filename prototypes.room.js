@@ -104,6 +104,16 @@ module.exports = () => {
             },
             enumerable: false,
             configurable: true
+        },
+        'secondaryHarvestPoints': {
+            get: function() {
+                return this.memory.shvstpts;
+            },
+            set: function(newValue) {
+                this.memory.shvstpts = newValue;
+            },
+            enumerable: false,
+            configurable: true
         }
     });
 
